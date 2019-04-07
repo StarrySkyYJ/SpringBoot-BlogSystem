@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="BlogCommentsReplyMapper" >
+  <resultMap id="BaseResultMap" type="com.space.entity.BlogCommentsReply" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="blog_id" property="blogId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="replg_user_id" property="replgUserId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="content_num_like" property="contentNumLike" jdbcType="INTEGER" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+   
+    <!-- 回复用户ID 查询用户名及头像 -->
+    <association  property="user" column="user_id" 
+    javaType="com.space.entity.User" select="selectUserByUserId">    
+    </association>
+    
+     <!-- 被回复用户ID 查询用户名 -->
+    <association  property="replyUser" column="replg_user_id" 
+    javaType="com.space.entity.User" select="selectUserByReplyUserId">    
+    </association>    
+  </resultMap>
+  	<!-- 用户信息 resultMap -->
+  <resultMap id="ResultMapwithUser" type="com.space.entity.User" >
+  	<id property="id" column="id"/>
+  	<result  property="username" column="username"/>
+  	<result  property="headImgUrl" column="head_img_url"/>
+  </resultMap>
+  	
+  	<select id="selectUserByUserId" parameterType="Integer" resultMap="ResultMapwithUser">
+  		select id , username, head_img_url
+  		from tb_user where id=#{user_id}
+  	</select>
+  	
+  	<select id="selectUserByReplyUserId" parameterType="Integer" resultMap="ResultMapwithUser">
+  		select id , username, head_img_url
+  		from tb_user where id=#{replg_user_id}
+  	</select>
+  
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, blog_id, user_id, replg_user_id, content, content_num_like, createtime, updatetime
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.space.entity.BlogCommentsReplyExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from blog_comments_reply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from blog_comments_reply
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from blog_comments_reply
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.space.entity.BlogCommentsReplyExample" >
+    delete from blog_comments_reply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.space.entity.BlogCommentsReply" >
+    insert into blog_comments_reply (id, blog_id, user_id, 
+      replg_user_id, content, content_num_like, 
+      createtime, updatetime)
+    values (#{id,jdbcType=INTEGER}, #{blogId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
+      #{replgUserId,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{contentNumLike,jdbcType=INTEGER}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.space.entity.BlogCommentsReply" >
+    insert into blog_comments_reply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="blogId != null" >
+        blog_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="replgUserId != null" >
+        replg_user_id,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="contentNumLike != null" >
+        content_num_like,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="updatetime != null" >
+        updatetime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="blogId != null" >
+        #{blogId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="replgUserId != null" >
+        #{replgUserId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="contentNumLike != null" >
+        #{contentNumLike,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.space.entity.BlogCommentsReplyExample" resultType="java.lang.Integer" >
+    select count(*) from blog_comments_reply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update blog_comments_reply
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.blogId != null" >
+        blog_id = #{record.blogId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=INTEGER},
+      </if>
+      <if test="record.replgUserId != null" >
+        replg_user_id = #{record.replgUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.content != null" >
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contentNumLike != null" >
+        content_num_like = #{record.contentNumLike,jdbcType=INTEGER},
+      </if>
+      <if test="record.createtime != null" >
+        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatetime != null" >
+        updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update blog_comments_reply
+    set id = #{record.id,jdbcType=INTEGER},
+      blog_id = #{record.blogId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      replg_user_id = #{record.replgUserId,jdbcType=INTEGER},
+      content = #{record.content,jdbcType=VARCHAR},
+      content_num_like = #{record.contentNumLike,jdbcType=INTEGER},
+      createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.space.entity.BlogCommentsReply" >
+    update blog_comments_reply
+    <set >
+      <if test="blogId != null" >
+        blog_id = #{blogId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="replgUserId != null" >
+        replg_user_id = #{replgUserId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="contentNumLike != null" >
+        content_num_like = #{contentNumLike,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.space.entity.BlogCommentsReply" >
+    update blog_comments_reply
+    set blog_id = #{blogId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      replg_user_id = #{replgUserId,jdbcType=INTEGER},
+      content = #{content,jdbcType=VARCHAR},
+      content_num_like = #{contentNumLike,jdbcType=INTEGER},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      updatetime = #{updatetime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

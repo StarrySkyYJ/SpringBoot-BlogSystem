@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="BlogArticleMapper" >
+  <resultMap id="BaseResultMap" type="com.space.entity.BlogArticle" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_title" property="articleTitle" jdbcType="VARCHAR" />
+    <result column="article_date" property="articleDate" jdbcType="TIMESTAMP" />
+    <result column="article_views" property="articleViews" jdbcType="BIGINT" />
+    <result column="article_num_comments" property="articleNumComments" jdbcType="BIGINT" />
+    <result column="article_num_like" property="articleNumLike" jdbcType="BIGINT" />
+  </resultMap>
+  
+  <!-- 查询出所有的信息 -->
+  <resultMap id="ResultMapWithBLOBs" type="com.space.entity.BlogArticle" extends="BaseResultMap" >
+    <result column="article_content" property="articleContent" jdbcType="LONGVARCHAR" />
+    <!-- 多对一配置 用户 -->
+    <association property="user" javaType="com.space.entity.User" 
+    column="user_id" select="selectUserById"
+    >    	
+    </association>
+  </resultMap>
+  
+  <!-- 用户信息 resultMap -->
+  <resultMap id="ResultMapwithUser" type="com.space.entity.User" >
+  	<id property="id" column="id"/>
+  	<result  property="username" column="username"/>
+  	<result  property="headImgUrl" column="head_img_url"/>
+  	<result column="sex" property="sex" jdbcType="VARCHAR" />
+	<result column="birthday" property="birthday" />
+	<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+	<result column="email" property="email" jdbcType="VARCHAR" />
+	<result column="address" property="address" jdbcType="VARCHAR" />
+	<result column="description" property="description" />
+	<result column="register_time" property="registerTime" />
+	<result column="last_update_blog" property="lastUpdateBlog" />
+	<result column="vip_point" property="vipPoint" />
+	<result column="vip_rank" property="vipRank"  />
+	<result column="vip_permission" property="vipPermission" />
+  </resultMap>
+  <!-- 嵌套select查询用户信息  -->
+  <select id="selectUserById" parameterType="Integer" resultMap="ResultMapwithUser">
+	select 
+	<include refid="Base_Column_List_with_user"></include>
+	from tb_user where id=#{user_id}
+  </select>
+  
+  
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <!-- 用户 -->
+  <sql id="Base_Column_List_with_user" >
+    id, username, sex, birthday, mobile, email,
+	address,
+	head_img_url, description,
+	register_time, last_update_blog,
+	vip_point, vip_rank, vip_permission
+  </sql>
+  
+  <sql id="Base_Column_List" >
+    id, user_id, article_title, article_date, article_views, article_num_comments, article_num_like
+  </sql>
+  <sql id="Blob_Column_List" >
+    article_content
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.space.entity.BlogArticleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.space.entity.BlogArticleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from blog_article
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+  <!-- 排序 =============-->
+  <select id="selectByorderByClause" resultMap="ResultMapWithBLOBs" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article
+    order by ${orderByClause}
+  </select>
+  
+  <!-- 通过主键查询 文章 -->
+  <select id="selectById" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  	 <!-- 根据 用户id 及排序查询 -->
+   <select id="selectByUserIdAndOrder" resultMap="ResultMapWithBLOBs" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article
+    where user_id = #{id} 
+    ORDER BY ${orderByClause}
+  </select>
+  
+  <!-- 通过 用户ID 及时间 查询 文章 -->
+  <select id="selectByUserIdDate" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />   
+    from blog_article
+    where user_id = #{userId} 
+    and article_date >= #{date}
+  </select>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from blog_article
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.space.entity.BlogArticleExample" >
+    delete from blog_article
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.space.entity.BlogArticle" >
+    insert into blog_article (id, user_id, article_title, 
+      article_date, article_views, article_num_comments, 
+      article_num_like, article_content)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{articleTitle,jdbcType=VARCHAR}, 
+      #{articleDate,jdbcType=TIMESTAMP}, #{articleViews,jdbcType=BIGINT}, #{articleNumComments,jdbcType=BIGINT}, 
+      #{articleNumLike,jdbcType=BIGINT}, #{articleContent,jdbcType=LONGVARCHAR})
+  </insert>
+  
+  <!-- 保存 -->
+  <insert id="insertBySelective" parameterType="com.space.entity.BlogArticle" >
+    insert into blog_article
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="articleTitle != null" >
+        article_title,
+      </if>
+      <if test="articleDate != null" >
+        article_date,
+      </if>
+      <if test="articleViews != null" >
+        article_views,
+      </if>
+      <if test="articleNumComments != null" >
+        article_num_comments,
+      </if>
+      <if test="articleNumLike != null" >
+        article_num_like,
+      </if>
+      <if test="articleContent != null" >
+        article_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="articleTitle != null" >
+        #{articleTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="articleDate != null" >
+        #{articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleViews != null" >
+        #{articleViews,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumComments != null" >
+        #{articleNumComments,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumLike != null" >
+        #{articleNumLike,jdbcType=BIGINT},
+      </if>
+      <if test="articleContent != null" >
+        #{articleContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.space.entity.BlogArticle" >
+    insert into blog_article
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="articleTitle != null" >
+        article_title,
+      </if>
+      <if test="articleDate != null" >
+        article_date,
+      </if>
+      <if test="articleViews != null" >
+        article_views,
+      </if>
+      <if test="articleNumComments != null" >
+        article_num_comments,
+      </if>
+      <if test="articleNumLike != null" >
+        article_num_like,
+      </if>
+      <if test="articleContent != null" >
+        article_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="articleTitle != null" >
+        #{articleTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="articleDate != null" >
+        #{articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleViews != null" >
+        #{articleViews,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumComments != null" >
+        #{articleNumComments,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumLike != null" >
+        #{articleNumLike,jdbcType=BIGINT},
+      </if>
+      <if test="articleContent != null" >
+        #{articleContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.space.entity.BlogArticleExample" resultType="java.lang.Integer" >
+    select count(*) from blog_article
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update blog_article
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleTitle != null" >
+        article_title = #{record.articleTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.articleDate != null" >
+        article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.articleViews != null" >
+        article_views = #{record.articleViews,jdbcType=BIGINT},
+      </if>
+      <if test="record.articleNumComments != null" >
+        article_num_comments = #{record.articleNumComments,jdbcType=BIGINT},
+      </if>
+      <if test="record.articleNumLike != null" >
+        article_num_like = #{record.articleNumLike,jdbcType=BIGINT},
+      </if>
+      <if test="record.articleContent != null" >
+        article_content = #{record.articleContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update blog_article
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      article_title = #{record.articleTitle,jdbcType=VARCHAR},
+      article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      article_views = #{record.articleViews,jdbcType=BIGINT},
+      article_num_comments = #{record.articleNumComments,jdbcType=BIGINT},
+      article_num_like = #{record.articleNumLike,jdbcType=BIGINT},
+      article_content = #{record.articleContent,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update blog_article
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      article_title = #{record.articleTitle,jdbcType=VARCHAR},
+      article_date = #{record.articleDate,jdbcType=TIMESTAMP},
+      article_views = #{record.articleViews,jdbcType=BIGINT},
+      article_num_comments = #{record.articleNumComments,jdbcType=BIGINT},
+      article_num_like = #{record.articleNumLike,jdbcType=BIGINT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.space.entity.BlogArticle" >
+    update blog_article
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="articleTitle != null" >
+        article_title = #{articleTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="articleDate != null" >
+        article_date = #{articleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleViews != null" >
+        article_views = #{articleViews,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumComments != null" >
+        article_num_comments = #{articleNumComments,jdbcType=BIGINT},
+      </if>
+      <if test="articleNumLike != null" >
+        article_num_like = #{articleNumLike,jdbcType=BIGINT},
+      </if>
+      <if test="articleContent != null" >
+        article_content = #{articleContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.space.entity.BlogArticle" >
+    update blog_article
+    set user_id = #{userId,jdbcType=INTEGER},
+      article_title = #{articleTitle,jdbcType=VARCHAR},
+      article_date = #{articleDate,jdbcType=TIMESTAMP},
+      article_views = #{articleViews,jdbcType=BIGINT},
+      article_num_comments = #{articleNumComments,jdbcType=BIGINT},
+      article_num_like = #{articleNumLike,jdbcType=BIGINT},
+      article_content = #{articleContent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.space.entity.BlogArticle" >
+    update blog_article
+    set user_id = #{userId,jdbcType=INTEGER},
+      article_title = #{articleTitle,jdbcType=VARCHAR},
+      article_date = #{articleDate,jdbcType=TIMESTAMP},
+      article_views = #{articleViews,jdbcType=BIGINT},
+      article_num_comments = #{articleNumComments,jdbcType=BIGINT},
+      article_num_like = #{articleNumLike,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

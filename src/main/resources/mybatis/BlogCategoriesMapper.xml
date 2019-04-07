@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="BlogCategoriesMapper">
+	
+	<resultMap id="BaseResultMap_Only"
+		type="com.space.entity.BlogCategories">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="categories_name" property="categoriesName"
+			jdbcType="VARCHAR" />
+		<result column="categories_description"
+			property="categoriesDescription" jdbcType="VARCHAR" />		
+	</resultMap>
+
+	<resultMap id="BaseResultMap"
+		type="com.space.entity.BlogCategories">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="categories_name" property="categoriesName"
+			jdbcType="VARCHAR" />
+		<result column="categories_description"
+			property="categoriesDescription" jdbcType="VARCHAR" />
+
+		<!-- 嵌套select 语句 查询博文 -->
+		<collection property="blogArticles" column="id"
+			ofType="com.space.entity.BlogArticle" select="selectBlogArticlesById">
+		</collection>
+
+	</resultMap>
+
+	<!-- 查询出 博文信息 -->
+	<select id="selectBlogArticlesById" parameterType="Integer"
+		resultMap="BaseResultMap_With_BlogArticles">
+		SELECT
+		<include refid="Base__BlogArticle"></include>
+		FROM blog_categories bc
+		JOIN blog_article_categories bbac ON bbac.categories = bc.id
+		JOIN blog_article ba ON ba.id = bbac.article_id  
+		And bc.id = #{id} ;
+	</select>
+
+	<!-- 博文 结果集 -->
+	<resultMap id="BaseResultMap_With_BlogArticles"
+		type="com.space.entity.BlogArticle">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="article_title" property="articleTitle"
+			jdbcType="VARCHAR" />
+		<result column="article_date" property="articleDate"
+			jdbcType="TIMESTAMP" />
+		<result column="article_views" property="articleViews"
+			jdbcType="BIGINT" />
+		<result column="article_num_comments"
+			property="articleNumComments" jdbcType="BIGINT" />
+		<result column="article_num_like" property="articleNumLike"
+			jdbcType="BIGINT" />
+		<result column="article_content" property="articleContent"
+			jdbcType="LONGVARCHAR" />
+	</resultMap>
+
+
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, categories_name, categories_description
+	</sql>
+
+	<!-- 博文 查询集 -->
+	<sql id="Base__BlogArticle">
+		ba.id,
+		ba.user_id, ba.article_title, ba.article_date,
+		ba.article_views,
+		ba.article_num_comments,
+		ba.article_num_like,ba.article_content
+	</sql>
+	
+	<!-- 分类及博文集合 -->
+	<sql id="Base_BlogCategoties__BlogArticle">	
+		ba.id,
+		ba.user_id, ba.article_title, ba.article_date,
+		ba.article_views,
+		ba.article_num_comments,
+		ba.article_num_like,ba.article_content
+	</sql>
+
+	<!-- 根据用户id查询出 文章分类 -->
+	<select id="selectAllByUserId" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		bc.id, bc.categories_name, bc.categories_description 
+		FROM blog_categories bc
+		JOIN blog_article_categories  bac ON bac.categories = bc.id
+		JOIN blog_article ba ON ba.id = bac.article_id 
+		AND ba.user_id = #{id} 
+		GROUP BY bc.id
+	</select>
+
+	<!-- 查询 所有分类 -->
+	<select id="selectAll" resultMap="BaseResultMap_Only">
+		select
+		<include refid="Base_Column_List" />
+		from blog_categories
+		ORDER BY id ASC 
+	</select>
+
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.space.entity.BlogCategoriesExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from blog_categories
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from blog_categories
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from blog_categories
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample"
+		parameterType="com.space.entity.BlogCategoriesExample">
+		delete from blog_categories
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert"
+		parameterType="com.space.entity.BlogCategories">
+		insert into blog_categories (id, categories_name, categories_description
+		)
+		values (#{id,jdbcType=INTEGER}, #{categoriesName,jdbcType=VARCHAR},
+		#{categoriesDescription,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective"
+		parameterType="com.space.entity.BlogCategories">
+		insert into blog_categories
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="categoriesName != null">
+				categories_name,
+			</if>
+			<if test="categoriesDescription != null">
+				categories_description,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="categoriesName != null">
+				#{categoriesName,jdbcType=VARCHAR},
+			</if>
+			<if test="categoriesDescription != null">
+				#{categoriesDescription,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample"
+		parameterType="com.space.entity.BlogCategoriesExample"
+		resultType="java.lang.Integer">
+		select count(*) from blog_categories
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update blog_categories
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=INTEGER},
+			</if>
+			<if test="record.categoriesName != null">
+				categories_name = #{record.categoriesName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.categoriesDescription != null">
+				categories_description =
+				#{record.categoriesDescription,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update blog_categories
+		set id = #{record.id,jdbcType=INTEGER},
+		categories_name = #{record.categoriesName,jdbcType=VARCHAR},
+		categories_description = #{record.categoriesDescription,jdbcType=VARCHAR}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.space.entity.BlogCategories">
+		update blog_categories
+		<set>
+			<if test="categoriesName != null">
+				categories_name = #{categoriesName,jdbcType=VARCHAR},
+			</if>
+			<if test="categoriesDescription != null">
+				categories_description = #{categoriesDescription,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.space.entity.BlogCategories">
+		update blog_categories
+		set categories_name = #{categoriesName,jdbcType=VARCHAR},
+		categories_description = #{categoriesDescription,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

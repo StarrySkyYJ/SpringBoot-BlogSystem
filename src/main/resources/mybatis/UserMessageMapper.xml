@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="UserMessageMapper" >
+  <resultMap id="BaseResultMap" type="com.space.entity.UserMessage" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="send_id" property="sendId" jdbcType="INTEGER" />
+    <result column="receive_id" property="receiveId" jdbcType="INTEGER" />
+    <result column="message_title" property="messageTitle" jdbcType="VARCHAR" />
+    <result column="message_content" property="messageContent" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, send_id, receive_id, message_title, message_content
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.space.entity.UserMessageExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_message
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_message
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.space.entity.UserMessageExample" >
+    delete from user_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.space.entity.UserMessage" >
+    insert into user_message (id, send_id, receive_id, 
+      message_title, message_content)
+    values (#{id,jdbcType=INTEGER}, #{sendId,jdbcType=INTEGER}, #{receiveId,jdbcType=INTEGER}, 
+      #{messageTitle,jdbcType=VARCHAR}, #{messageContent,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.space.entity.UserMessage" >
+    insert into user_message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sendId != null" >
+        send_id,
+      </if>
+      <if test="receiveId != null" >
+        receive_id,
+      </if>
+      <if test="messageTitle != null" >
+        message_title,
+      </if>
+      <if test="messageContent != null" >
+        message_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="sendId != null" >
+        #{sendId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveId != null" >
+        #{receiveId,jdbcType=INTEGER},
+      </if>
+      <if test="messageTitle != null" >
+        #{messageTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="messageContent != null" >
+        #{messageContent,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.space.entity.UserMessageExample" resultType="java.lang.Integer" >
+    select count(*) from user_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update user_message
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.sendId != null" >
+        send_id = #{record.sendId,jdbcType=INTEGER},
+      </if>
+      <if test="record.receiveId != null" >
+        receive_id = #{record.receiveId,jdbcType=INTEGER},
+      </if>
+      <if test="record.messageTitle != null" >
+        message_title = #{record.messageTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.messageContent != null" >
+        message_content = #{record.messageContent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update user_message
+    set id = #{record.id,jdbcType=INTEGER},
+      send_id = #{record.sendId,jdbcType=INTEGER},
+      receive_id = #{record.receiveId,jdbcType=INTEGER},
+      message_title = #{record.messageTitle,jdbcType=VARCHAR},
+      message_content = #{record.messageContent,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.space.entity.UserMessage" >
+    update user_message
+    <set >
+      <if test="sendId != null" >
+        send_id = #{sendId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveId != null" >
+        receive_id = #{receiveId,jdbcType=INTEGER},
+      </if>
+      <if test="messageTitle != null" >
+        message_title = #{messageTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="messageContent != null" >
+        message_content = #{messageContent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.space.entity.UserMessage" >
+    update user_message
+    set send_id = #{sendId,jdbcType=INTEGER},
+      receive_id = #{receiveId,jdbcType=INTEGER},
+      message_title = #{messageTitle,jdbcType=VARCHAR},
+      message_content = #{messageContent,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

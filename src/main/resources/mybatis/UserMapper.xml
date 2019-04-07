@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="UserMapper">
+	<resultMap id="BaseResultMap" type="com.space.entity.User">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username"
+			jdbcType="VARCHAR" />
+		<result column="password" property="password"
+			jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday"
+			jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="head_img_url" property="headImgUrl"
+			jdbcType="VARCHAR" />
+		<result column="description" property="description"
+			jdbcType="VARCHAR" />
+		<result column="register_time" property="registerTime"
+			jdbcType="TIMESTAMP" />
+		<result column="last_update_blog" property="lastUpdateBlog"
+			jdbcType="TIMESTAMP" />
+		<result column="vip_point" property="vipPoint"
+			jdbcType="INTEGER" />
+		<result column="vip_rank" property="vipRank" jdbcType="INTEGER" />
+		<result column="vip_permission" property="vipPermission"
+			jdbcType="INTEGER" />
+	</resultMap>
+	<!-- ==========博客: 嵌套resultMap 无法查询出博客ID============ -->
+	<resultMap id="BaseResultMap_WithBolgArticle"
+		type="com.space.entity.User">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username"
+			jdbcType="VARCHAR" />
+		<result column="password" property="password"
+			jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday"
+			jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="head_img_url" property="headImgUrl"
+			jdbcType="VARCHAR" />
+		<result column="description" property="description"
+			jdbcType="VARCHAR" />
+		<result column="register_time" property="registerTime"
+			jdbcType="TIMESTAMP" />
+		<result column="last_update_blog" property="lastUpdateBlog"
+			jdbcType="TIMESTAMP" />
+		<result column="vip_point" property="vipPoint"
+			jdbcType="INTEGER" />
+		<result column="vip_rank" property="vipRank" jdbcType="INTEGER" />
+		<result column="vip_permission" property="vipPermission"
+			jdbcType="INTEGER" />
+
+		<!--id标签中的 column属性：需传入select的值 User id ；ofType：映射到集合 -->
+		<collection property="blogArticles"
+			ofType="com.space.entity.BlogArticle" select="selectBlogByUserID"
+			column="id">
+		</collection>
+	</resultMap>
+
+	<resultMap id="ResultMapwith_BlogArticles"
+		type="com.space.entity.BlogArticle">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="article_title" property="articleTitle"
+			jdbcType="VARCHAR" />
+		<result column="article_date" property="articleDate"
+			jdbcType="TIMESTAMP" />
+		<result column="article_views" property="articleViews"
+			jdbcType="BIGINT" />
+		<result column="article_num_comments"
+			property="articleNumComments" jdbcType="BIGINT" />
+		<result column="article_num_like" property="articleNumLike"
+			jdbcType="BIGINT" />
+		<result column="article_content" property="articleContent"
+			jdbcType="LONGVARCHAR" />
+	</resultMap>
+
+	<select id="selectBlogByUserID" parameterType="Integer"
+		resultMap="ResultMapwith_BlogArticles">
+		select
+		<include refid="Base_Column_List_Blog_Article" />
+		from blog_article
+		where user_id=#{id}
+	</select>
+			
+
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, username, password, sex, birthday, mobile, email,
+		address,
+		head_img_url, description,
+		register_time, last_update_blog,
+		vip_point, vip_rank, vip_permission
+	</sql>
+
+	<!-- 用户及博客 数据 -->
+	<sql id="Base_Column_List_with_Blog">
+		u.id, u.username, u.password, u.sex, u.birthday, u.mobile,
+		u.email,
+		u.address,
+		u.head_img_url, u.description,
+		u.register_time,
+		u.last_update_blog,
+		u.vip_point, u.vip_rank, u.vip_permission,
+
+		b.id,
+		b.user_id, b.article_title, b.article_date,
+		b.article_views,
+		b.article_num_comments,
+		b.article_num_like,b.article_content
+	</sql>
+
+	<!-- Blog_Article 字段 -->
+	<sql id="Base_Column_List_Blog_Article">
+		id, user_id, article_title, article_date, article_views,
+		article_num_comments, article_num_like, article_content
+	</sql>
+
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.space.entity.UserExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from tb_user
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+
+	<!-- 按照用户名或密码 查询 -->
+	<select id="selectByUsernameAndPassword"
+		resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from tb_user
+		<where>
+			<if test="username != null">
+				username = #{username}
+			</if>
+			<if test="password != null">
+				and password = #{password}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据 id查询用户 及文章 -->
+	<select id="selectALLById"
+		resultMap="BaseResultMap_WithBolgArticle"
+		parameterType="java.lang.Integer">
+		select * 
+		from tb_user
+		where
+		id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!--后台管理： 查询所有  -->
+	<select id="selectAll" resultMap="BaseResultMap_WithBolgArticle"
+		>
+		select
+		<include refid="Base_Column_List" />
+		from tb_user
+		order by id ASC
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from tb_user
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tb_user
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample"
+		parameterType="com.space.entity.UserExample">
+		delete from tb_user
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+
+	<!-- 注册 选择添加 批量添加 -->
+	<insert id="saveUserList" parameterType="java.util.List">
+		insert into tb_user (
+		<include refid="Base_Column_List" />
+		) values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				<choose>
+					<when test="item.id != null">
+						#{item.id},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.username != null">
+						#{item.username},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.password != null">
+						#{item.password},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.sex != null">
+						#{item.sex},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.birthday != null">
+						#{item.birthday},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.mobile != null">
+						#{item.mobile},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.email != null">
+						#{item.email},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.address != null">
+						#{item.address},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.headImgUrl != null">
+						#{item.headImgUrl},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.description != null">
+						#{item.description},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.registerTime != null">
+						#{item.registerTime},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.lastUpdateBlog != null">
+						#{item.lastUpdateBlog},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.vipPoint != null">
+						#{item.vipPoint},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.vipRank != null">
+						#{item.vipRank},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+				<choose>
+					<when test="item.vipPermission != null">
+						#{item.vipPermission},
+					</when>
+					<otherwise>
+						NULL,
+					</otherwise>
+				</choose>
+			</trim>
+		</foreach>
+
+	</insert>
+
+
+	<insert id="insert" parameterType="com.space.entity.User">
+		insert into tb_user (id,
+		username, password,
+		sex, birthday, mobile,
+		email, address, head_img_url,
+		description, register_time, last_update_blog,
+		vip_point, vip_rank,
+		vip_permission
+		)
+		values (#{id,jdbcType=INTEGER},
+		#{username,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{sex,jdbcType=VARCHAR}, #{birthday,jdbcType=VARCHAR},
+		#{mobile,jdbcType=VARCHAR},
+		#{email,jdbcType=VARCHAR},
+		#{address,jdbcType=VARCHAR},
+		#{headImgUrl,jdbcType=VARCHAR},
+		#{description,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP},
+		#{lastUpdateBlog,jdbcType=TIMESTAMP},
+		#{vipPoint,jdbcType=INTEGER},
+		#{vipRank,jdbcType=INTEGER}, #{vipPermission,jdbcType=INTEGER}
+		)
+	</insert>
+
+	<insert id="insertSelective"
+		parameterType="com.space.entity.User">
+		insert into tb_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="username != null">
+				username,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="sex != null">
+				sex,
+			</if>
+			<if test="birthday != null">
+				birthday,
+			</if>
+			<if test="mobile != null">
+				mobile,
+			</if>
+			<if test="email != null">
+				email,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="headImgUrl != null">
+				head_img_url,
+			</if>
+			<if test="description != null">
+				description,
+			</if>
+			<if test="registerTime != null">
+				register_time,
+			</if>
+			<if test="lastUpdateBlog != null">
+				last_update_blog,
+			</if>
+			<if test="vipPoint != null">
+				vip_point,
+			</if>
+			<if test="vipRank != null">
+				vip_rank,
+			</if>
+			<if test="vipPermission != null">
+				vip_permission,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="username != null">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="birthday != null">
+				#{birthday,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="headImgUrl != null">
+				#{headImgUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="description != null">
+				#{description,jdbcType=VARCHAR},
+			</if>
+			<if test="registerTime != null">
+				#{registerTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastUpdateBlog != null">
+				#{lastUpdateBlog,jdbcType=TIMESTAMP},
+			</if>
+			<if test="vipPoint != null">
+				#{vipPoint,jdbcType=INTEGER},
+			</if>
+			<if test="vipRank != null">
+				#{vipRank,jdbcType=INTEGER},
+			</if>
+			<if test="vipPermission != null">
+				#{vipPermission,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample"
+		parameterType="com.space.entity.UserExample"
+		resultType="java.lang.Integer">
+		select count(*) from tb_user
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update tb_user
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=INTEGER},
+			</if>
+			<if test="record.username != null">
+				username = #{record.username,jdbcType=VARCHAR},
+			</if>
+			<if test="record.password != null">
+				password = #{record.password,jdbcType=VARCHAR},
+			</if>
+			<if test="record.sex != null">
+				sex = #{record.sex,jdbcType=VARCHAR},
+			</if>
+			<if test="record.birthday != null">
+				birthday = #{record.birthday,jdbcType=VARCHAR},
+			</if>
+			<if test="record.mobile != null">
+				mobile = #{record.mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="record.email != null">
+				email = #{record.email,jdbcType=VARCHAR},
+			</if>
+			<if test="record.address != null">
+				address = #{record.address,jdbcType=VARCHAR},
+			</if>
+			<if test="record.headImgUrl != null">
+				head_img_url = #{record.headImgUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="record.description != null">
+				description = #{record.description,jdbcType=VARCHAR},
+			</if>
+			<if test="record.registerTime != null">
+				register_time =
+				#{record.registerTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.lastUpdateBlog != null">
+				last_update_blog =
+				#{record.lastUpdateBlog,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.vipPoint != null">
+				vip_point = #{record.vipPoint,jdbcType=INTEGER},
+			</if>
+			<if test="record.vipRank != null">
+				vip_rank = #{record.vipRank,jdbcType=INTEGER},
+			</if>
+			<if test="record.vipPermission != null">
+				vip_permission =
+				#{record.vipPermission,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update tb_user
+		set id = #{record.id,jdbcType=INTEGER},
+		username =
+		#{record.username,jdbcType=VARCHAR},
+		password =
+		#{record.password,jdbcType=VARCHAR},
+		sex =
+		#{record.sex,jdbcType=VARCHAR},
+		birthday =
+		#{record.birthday,jdbcType=VARCHAR},
+		mobile =
+		#{record.mobile,jdbcType=VARCHAR},
+		email =
+		#{record.email,jdbcType=VARCHAR},
+		address =
+		#{record.address,jdbcType=VARCHAR},
+		head_img_url =
+		#{record.headImgUrl,jdbcType=VARCHAR},
+		description =
+		#{record.description,jdbcType=VARCHAR},
+		register_time =
+		#{record.registerTime,jdbcType=TIMESTAMP},
+		last_update_blog =
+		#{record.lastUpdateBlog,jdbcType=TIMESTAMP},
+		vip_point =
+		#{record.vipPoint,jdbcType=INTEGER},
+		vip_rank =
+		#{record.vipRank,jdbcType=INTEGER},
+		vip_permission =
+		#{record.vipPermission,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.space.entity.User">
+		update tb_user
+		<set>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				sex = #{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				email = #{email,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="headImgUrl != null">
+				head_img_url = #{headImgUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="description != null">
+				description = #{description,jdbcType=VARCHAR},
+			</if>
+			<if test="registerTime != null">
+				register_time = #{registerTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastUpdateBlog != null">
+				last_update_blog = #{lastUpdateBlog,jdbcType=TIMESTAMP},
+			</if>
+			<if test="vipPoint != null">
+				vip_point = #{vipPoint,jdbcType=INTEGER},
+			</if>
+			<if test="vipRank != null">
+				vip_rank = #{vipRank,jdbcType=INTEGER},
+			</if>
+			<if test="vipPermission != null">
+				vip_permission = #{vipPermission,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.space.entity.User">
+		update tb_user
+		set username =
+		#{username,jdbcType=VARCHAR},
+		password = #{password,jdbcType=VARCHAR},
+		sex = #{sex,jdbcType=VARCHAR},
+		birthday = #{birthday,jdbcType=VARCHAR},
+		mobile = #{mobile,jdbcType=VARCHAR},
+		email = #{email,jdbcType=VARCHAR},
+		address = #{address,jdbcType=VARCHAR},
+		head_img_url =
+		#{headImgUrl,jdbcType=VARCHAR},
+		description =
+		#{description,jdbcType=VARCHAR},
+		register_time =
+		#{registerTime,jdbcType=TIMESTAMP},
+		last_update_blog =
+		#{lastUpdateBlog,jdbcType=TIMESTAMP},
+		vip_point =
+		#{vipPoint,jdbcType=INTEGER},
+		vip_rank = #{vipRank,jdbcType=INTEGER},
+		vip_permission = #{vipPermission,jdbcType=INTEGER}
+		where id =
+		#{id,jdbcType=INTEGER}
+	</update>
+</mapper>
